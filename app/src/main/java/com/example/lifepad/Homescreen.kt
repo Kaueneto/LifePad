@@ -3,7 +3,6 @@ package com.example.lifepad
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -94,7 +93,7 @@ fun HomeScreen(navController: NavController) {
                     modifier = Modifier
                         .background(
                             brush = Brush.horizontalGradient(
-                                colors = listOf(Color(0xFF8620AC), Color(0xFFA237E4))
+                                colors = listOf(Color(0xFFA237E4), Color(0xFFA237E4))
                             ),
                             shape = RoundedCornerShape(24.dp)
                         )
@@ -117,10 +116,17 @@ fun HomeScreen(navController: NavController) {
                             Spacer(Modifier.height(16.dp))
                             Button(
                                 onClick = { /*TODO ver mais*/ },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A21A0)),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(
+                                    0xFFA237E4
+                                )
+                                ),
                                 shape = RoundedCornerShape(50)
                             ) {
-                                Text("Ver Mais", color = Color.White)
+                                Text(
+                                    "Ver mais.",
+                                    color = Color(0xFFFFFFFF),
+                                    fontSize = 10.sp
+                                )
                             }
                         }
                         Spacer(Modifier.width(24.dp))
@@ -133,7 +139,7 @@ fun HomeScreen(navController: NavController) {
                                     useCenter = true
                                 )
                                 drawArc(
-                                    color = Color(0xFFE9449B),
+                                    color = Color(0x27B0F5),
                                     startAngle = 120f,
                                     sweepAngle = 120f,
                                     useCenter = true
@@ -344,55 +350,65 @@ fun HomeScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
-            LazyColumn(
+
+            //scrool pra mostrar os treinos
+            Card(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
-                    .heightIn(max = 240.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                userScrollEnabled = false
+                    .height(240.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF332C4B)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                items(3) { index ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF4539DF))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(3) { index ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF4539DF))
                         ) {
-                            Image(
-                                painter = painterResource(id = com.example.lifepad.R.drawable.iconavatar),
-                                contentDescription = "Treino Ícone",
-                                modifier = Modifier.size(40.dp)
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    when (index) {
-                                        0 -> "Treino de Corpo Inteiro"
-                                        1 -> "Treino de Inferiores"
-                                        else -> "Treino de Abdômen"
-                                    },
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Image(
+                                    painter = painterResource(id = com.example.lifepad.R.drawable.iconavatar),
+                                    contentDescription = "Treino Ícone",
+                                    modifier = Modifier.size(40.dp)
                                 )
-                                Text(
-                                    when (index) {
-                                        0 -> "180 Calorias queimadas | 20 minutos"
-                                        1 -> "200 Calorias queimadas | 30 minutos"
-                                        else -> "180 Calorias queimadas | 20 minutos"
-                                    },
-                                    color = Color(0xFFD1CCE4),
-                                    fontSize = 12.sp
+                                Spacer(Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        when (index) {
+                                            0 -> "Treino de Corpo Inteiro"
+                                            1 -> "Treino de Inferiores"
+                                            else -> "Treino de Abdômen"
+                                        },
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp
+                                    )
+                                    Text(
+                                        when (index) {
+                                            0 -> "180 Calorias queimadas | 20 minutos"
+                                            1 -> "200 Calorias queimadas | 30 minutos"
+                                            else -> "180 Calorias queimadas | 20 minutos"
+                                        },
+                                        color = Color(0xFFD1CCE4),
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Icon(
+                                    Icons.Default.ArrowForward,
+                                    contentDescription = "Detalhes",
+                                    tint = Color.White
                                 )
                             }
-                            Icon(
-                                Icons.Default.ArrowForward,
-                                contentDescription = "Detalhes",
-                                tint = Color.White
-                            )
                         }
                     }
                 }
@@ -400,7 +416,6 @@ fun HomeScreen(navController: NavController) {
             Spacer(Modifier.height(80.dp))
         }
 
-        // Usar a navegação customizada
         CustomBottomNavigation(
             navController = navController,
             modifier = Modifier.align(Alignment.BottomCenter)

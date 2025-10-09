@@ -1,11 +1,19 @@
 package com.example.lifepad
 
+import SplashScreen
+import android.graphics.Color.alpha
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
@@ -19,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -30,14 +39,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.lifepad.ui.theme.LifePadTheme
-
+//tela de login - principal
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             LifePadTheme {
                 val navController = rememberNavController()
-                NavHost(navController, startDestination = "login") {
+                NavHost(navController, startDestination = "splash") {
+                    composable("splash") {
+                        SplashScreen {
+                            navController.navigate("login") {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                        }
+                    }
                     composable("login") {
                         LoginScreen(onLoginClicked = {
                             navController.navigate("home") {
@@ -61,10 +77,11 @@ class MainActivity : ComponentActivity() {
                         })
                     ) { backStack ->
                         val mealName = backStack.arguments?.getString("mealName") ?: ""
-                        // Exemplo fixo de dados; ajuste conforme necessário
+
+
                         MealDetailScreen(
                             navController = navController,
-                            mealImage = R.drawable.panqueca,
+                            mealImage = R.drawable.img_apple_pie,
                             mealTitle = mealName,
                             author = "Arash Ranjbaran Qadikolaei",
                             nutrition = listOf(
@@ -104,45 +121,74 @@ fun LoginScreen(
     var senha by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isAluno) Color.White else Color(0xFF2E2B45),
+        animationSpec = tween(durationMillis = 500),
+        label = "backgroundColor"
+    )
+
+    val textColor = if (isAluno) Color.Black else Color.White
+    val containerColor = if (isAluno) Color(0xFFEDEDED) else Color(0xFF4A4A4A)
+    val selectedColor = if (isAluno) Color(0xFFB429C3) else Color(0xFF4539DF)
+    val buttonColor = if (isAluno) Color(0xFFB429C3) else Color(0xFF4539DF)
+    val borderFieldColor = if (isAluno) Color(0xFF232024) else Color(0xFFD1CCE4)
+    val cadastroColor = if (isAluno) Color(0xFFB429C3) else Color(0xFF8E79E5)
+    val socialBorder = if (isAluno) Color(0xFFDEDEDE) else Color(0xFF3A3641)
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF2E2B45))
-            .padding(horizontal = 32.dp, vertical = 24.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
+            .background(backgroundColor)
+            .padding(horizontal = 32.dp),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(32.dp))
-        Text("Olá,", style = MaterialTheme.typography.titleMedium, color = Color.White)
-        Text("Bem vindo de volta!", style = MaterialTheme.typography.titleLarge, color = Color.White)
+        Spacer(Modifier.height(60.dp))
+        Text("Olá,", style = MaterialTheme.typography.titleMedium, color = textColor)
+        Text("Bem vindo de volta!", style = MaterialTheme.typography.titleLarge, color = textColor)
+        Spacer(Modifier.height(35.dp))
 
-        Spacer(Modifier.height(24.dp))
-
-        Row(
+        Box(
             modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
                 .clip(RoundedCornerShape(32.dp))
-                .background(Color(0xFF4A4A4A)),
-            horizontalArrangement = Arrangement.Center
+                .background(containerColor)
         ) {
-            Button(
-                onClick = { isAluno = true },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isAluno) Color(0xFFB429C3) else Color.Transparent
-                ),
-                shape = RoundedCornerShape(32.dp),
-                elevation = ButtonDefaults.buttonElevation(0.dp),
-                modifier = Modifier.weight(1f)
-            ) { Text("Aluno", color = Color.White) }
+            val alignment by animateAlignmentAsState(if (isAluno) Alignment.CenterStart else Alignment.CenterEnd)
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(0.5f)
+                    .align(alignment)
+                    .clip(RoundedCornerShape(32.dp))
+                    .background(selectedColor)
+            )
 
-            Button(
-                onClick = { isAluno = false },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (!isAluno) Color(0xFF4539DF) else Color.Transparent
-                ),
-                shape = RoundedCornerShape(32.dp),
-                elevation = ButtonDefaults.buttonElevation(0.dp),
-                modifier = Modifier.weight(1f)
-            ) { Text("Profissional", color = Color.White) }
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Aluno",
+                    color = if (isAluno) Color.White else Color(0xFFBEBEBE),
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { isAluno = true }
+                        .padding(horizontal = 16.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Text(
+                    "Profissional",
+                    color = if (!isAluno) Color.White else Color(0xFFBEBEBE),
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { isAluno = false }
+                        .padding(horizontal = 16.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            }
         }
 
         Spacer(Modifier.height(24.dp))
@@ -150,44 +196,54 @@ fun LoginScreen(
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email", color = Color.White) },
-            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = Color.White) },
+            label = { Text("Email", color = textColor) },
+            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = textColor) },
             singleLine = true,
+            shape = RoundedCornerShape(15.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFFB429C3),
-                unfocusedBorderColor = Color.Gray
+                focusedTextColor = textColor,
+                unfocusedTextColor = textColor,
+                focusedBorderColor = selectedColor,
+                unfocusedBorderColor = borderFieldColor,
+                cursorColor = selectedColor
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
         )
+
+        Spacer(Modifier.height(12.dp))
 
         OutlinedTextField(
             value = senha,
             onValueChange = { senha = it },
-            label = { Text("Senha", color = Color.White) },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White) },
+            label = { Text("Senha", color = textColor) },
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = textColor) },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
-                        imageVector = if (passwordVisible) Icons.Filled.Visibility
-                        else Icons.Filled.VisibilityOff,
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                         contentDescription = null,
-                        tint = Color.White
+                        tint = textColor
                     )
                 }
             },
-            visualTransformation = if (passwordVisible) VisualTransformation.None
-            else PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             singleLine = true,
+            shape = RoundedCornerShape(15.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color(0xFFB429C3),
-                unfocusedBorderColor = Color.Gray
+                focusedTextColor = textColor,
+                unfocusedTextColor = textColor,
+                focusedBorderColor = selectedColor,
+                unfocusedBorderColor = borderFieldColor,
+                cursorColor = selectedColor
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
         )
+
+        Spacer(Modifier.height(8.dp))
 
         Text(
             "Esqueceu a senha?",
@@ -195,13 +251,15 @@ fun LoginScreen(
             color = Color.Gray,
             modifier = Modifier
                 .align(Alignment.End)
-                .padding(top = 8.dp, bottom = 16.dp)
+                .padding(bottom = 8.dp)
         )
+
+        Spacer(Modifier.height(8.dp))
 
         Button(
             onClick = { onLoginClicked() },
             shape = RoundedCornerShape(32.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB429C3)),
+            colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
@@ -211,29 +269,71 @@ fun LoginScreen(
             Text("Login", color = Color.White)
         }
 
-        Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
+        Spacer(Modifier.height(32.dp))
 
-        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            IconButton(onClick = { /* Google login */ }) {
-                Icon(painterResource(id = R.drawable.icongoogle), contentDescription = null, tint = Color.White)
+        Divider(color = Color(0xFFBBBBBB), thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            IconButton(
+                onClick = { /* Google login */ },
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(backgroundColor)
+                    .border(1.dp, socialBorder, RoundedCornerShape(12.dp))
+            ) {
+                Icon(
+                    painterResource(id = R.drawable.icongoogle),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(24.dp)
+                )
             }
-            Spacer(Modifier.width(16.dp))
-            IconButton(onClick = { /* Facebook login */ }) {
-                Icon(painterResource(id = R.drawable.iconfacebook), contentDescription = null, tint = Color.White)
+            Spacer(Modifier.width(24.dp))
+            IconButton(
+                onClick = { /* instagram login */ },
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(backgroundColor)
+                    .border(1.dp, socialBorder, RoundedCornerShape(12.dp))
+            ) {
+                Icon(
+                    painterResource(id = R.drawable.iconinsta),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(24.dp)
+                )
             }
         }
 
-        Spacer(Modifier.height(16.dp))
-        Row {
-            Text("Ainda não tem uma conta? ", color = Color.White)
+        Spacer(Modifier.weight(1f))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text("Ainda não tem uma conta? ", color = textColor)
             Text(
                 "Cadastre-se",
-                color = Color(0xFFB429C3),
-                modifier = Modifier.clickable { /* Navegar para cadastro */ }
-            )
-        }
-        Spacer(Modifier.height(32.dp))
+                color = cadastroColor,
+                modifier = Modifier.clickable { /*implementa tela de cadastrp depois*/ }
+            )}
     }
+}
+
+@Composable
+fun animateAlignmentAsState(targetAlignment: Alignment): State<Alignment> {
+    var currentAlignment by remember { mutableStateOf(targetAlignment) }
+    LaunchedEffect(targetAlignment) { currentAlignment = targetAlignment }
+    return rememberUpdatedState(currentAlignment)
 }
 
 @Preview(showBackground = true)
@@ -243,3 +343,6 @@ fun LoginScreenPreview() {
         LoginScreen(onLoginClicked = {})
     }
 }
+
+
+

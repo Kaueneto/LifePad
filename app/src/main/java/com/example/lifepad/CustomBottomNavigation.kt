@@ -19,7 +19,7 @@ fun CustomBottomNavigation(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    // Observa a rota atual para destacar o ícone ativo
+    // observa a rota atual para destacar o ícone ativo
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -53,6 +53,28 @@ fun CustomBottomNavigation(
                         navController.navigate("foodMain")
                     }
                 }
+            )
+            BottomNavItem(
+                icon = R.drawable.icongraficos,
+                isSelected = currentRoute == "",
+                onClick = {
+                    if (currentRoute != "foodMain") {                 //ajustar aqui depois que tiver a tela pronta
+                        navController.navigate("foodMain")    //aqui tambem
+                    }
+                }
+
+
+            )
+            BottomNavItem(
+                icon = R.drawable.iconperfil,
+                isSelected = currentRoute == "",
+                onClick = {
+                    if (currentRoute != "foodMain") {                 //ajustar aqui depois que tiver a tela pronta
+                        navController.navigate("foodMain")    //aqui tambem
+                    }
+                }
+
+
             )
         }
     }
