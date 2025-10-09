@@ -28,7 +28,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
     )
 
     Box(
-        //usando o alpha pra fazer um fade 
+        //usando o alpha pra fazer um fade
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor.value)
@@ -38,8 +38,9 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
         Text(
             "LifePad",
             color = Color.White,
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineLarge
         )
+
     }
 
     LaunchedEffect(Unit) {
@@ -48,7 +49,15 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
 
 
         backgroundColor.animateTo(
-            targetValue = Color(0xFF0E005B),
+            targetValue = Color(0xFF020A15),
+            animationSpec = tween(durationMillis = 500)
+        )
+        backgroundColor.animateTo(
+            targetValue = Color(0xFF010423),
+            animationSpec = tween(durationMillis = 450)
+        )
+        backgroundColor.animateTo(
+            targetValue = Color(0xFF0A1148),
             animationSpec = tween(durationMillis = 1500)
         )
 
