@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1013085901298",
+    "project_id": "lifepad-7bd0c",
+    "storage_bucket": "lifepad-7bd0c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1013085901298:android:05db416003c2ea1eb21b6b",
+        "android_client_info": {
+          "package_name": "com.example.lifepad"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXigI5XvCVTltmiW0cD41HpxXgo3xLDCg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

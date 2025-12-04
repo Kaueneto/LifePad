@@ -1,5 +1,6 @@
 package com.example.lifepad
 
+import RegisterScreen
 import SplashScreen
 import android.graphics.Color.alpha
 import android.os.Bundle
@@ -55,12 +56,18 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable("login") {
-                        LoginScreen(onLoginClicked = {
-                            navController.navigate("home") {
-                                popUpTo("login") { inclusive = true }
+                        LoginScreen(
+                            onLoginClicked = {
+                                navController.navigate("home") {
+                                    popUpTo("login") { inclusive = true }
+                                }
+                            },
+                            onRegisterClicked = {
+                                navController.navigate("register")
                             }
-                        })
+                        )
                     }
+
                     composable("home") {
                         HomeScreen(navController = navController)
                     }
@@ -105,6 +112,14 @@ class MainActivity : ComponentActivity() {
                             onAddClick = { /* TODO: adicionar ação */ }
                         )
                     }
+                    composable("register") {
+                        RegisterScreen(
+                            onBackToLogin = {
+                                navController.popBackStack() // volta para a tela anterior (login)
+                            }
+                        )
+                    }
+
                 }
             }
         }
@@ -114,7 +129,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    onLoginClicked: () -> Unit
+    onLoginClicked: () -> Unit,
+    onRegisterClicked: () -> Unit
 ) {
     var isAluno by remember { mutableStateOf(true) }
     var email by remember { mutableStateOf("") }
@@ -324,8 +340,9 @@ fun LoginScreen(
             Text(
                 "Cadastre-se",
                 color = cadastroColor,
-                modifier = Modifier.clickable { /*implementa tela de cadastrp depois*/ }
-            )}
+                modifier = Modifier.clickable { onRegisterClicked() }
+            )
+}
     }
 }
 
@@ -340,9 +357,9 @@ fun animateAlignmentAsState(targetAlignment: Alignment): State<Alignment> {
 @Composable
 fun LoginScreenPreview() {
     LifePadTheme {
-        LoginScreen(onLoginClicked = {})
+        LoginScreen(
+            onLoginClicked = {},
+            onRegisterClicked = {}  // <-- adiciona isso
+        )
     }
 }
-
-
-

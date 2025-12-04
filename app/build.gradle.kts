@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -27,19 +28,24 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
 }
 
 dependencies {
+
+    // --- Compose ---
     implementation("androidx.compose.material3:material3:1.2.0-alpha01")
     implementation("androidx.compose.material:material-icons-extended:1.5.0")
     implementation(libs.androidx.core.ktx)
@@ -50,8 +56,18 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // --- Navigation ---
+    implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation(libs.androidx.navigation.runtime.ktx)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
+
+    // --- Firebase (Corrigido) ---
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+    // --- Testes ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
