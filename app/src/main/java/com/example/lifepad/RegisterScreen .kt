@@ -92,7 +92,7 @@ fun RegisterScreen(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+              //  .height(56.dp)
         )
 
         Spacer(Modifier.height(12.dp))
@@ -112,7 +112,7 @@ fun RegisterScreen(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+              //  .height(56.dp)
         )
 
         Spacer(Modifier.height(12.dp))
@@ -133,7 +133,7 @@ fun RegisterScreen(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+               // .height(56.dp)
         )
 
         Spacer(Modifier.height(12.dp))
@@ -164,7 +164,7 @@ fun RegisterScreen(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+             //   .height(56.dp)
         )
 
         Spacer(Modifier.height(24.dp))

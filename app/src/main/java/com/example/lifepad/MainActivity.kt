@@ -225,7 +225,7 @@ fun LoginScreen(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+             //   .height(56.dp)
         )
 
         Spacer(Modifier.height(12.dp))
@@ -256,7 +256,7 @@ fun LoginScreen(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+               // .height(56.dp)
         )
 
         Spacer(Modifier.height(8.dp))
