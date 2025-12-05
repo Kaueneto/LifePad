@@ -3,6 +3,7 @@ package com.example.lifepad
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -116,17 +117,10 @@ fun HomeScreen(navController: NavController) {
                             Spacer(Modifier.height(16.dp))
                             Button(
                                 onClick = { /*TODO ver mais*/ },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(
-                                    0xFFA237E4
-                                )
-                                ),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA237E4)),
                                 shape = RoundedCornerShape(50)
                             ) {
-                                Text(
-                                    "Ver mais.",
-                                    color = Color(0xFFFFFFFF),
-                                    fontSize = 10.sp
-                                )
+                                Text("Ver mais.", color = Color(0xFFFFFFFF), fontSize = 10.sp)
                             }
                         }
                         Spacer(Modifier.width(24.dp))
@@ -247,14 +241,20 @@ fun HomeScreen(navController: NavController) {
                 }
             }
 
+            // --- AQUI: linha com os 3 cards (consumo de água clicável)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Card clicável - abre HidratacaoScreen
                 Card(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable {
+                            navController.navigate("hidratacao")
+                        },
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFF1B1A29))
                 ) {
@@ -269,6 +269,8 @@ fun HomeScreen(navController: NavController) {
                         Spacer(Modifier.height(12.dp))
                     }
                 }
+
+                // Sono
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
@@ -298,6 +300,8 @@ fun HomeScreen(navController: NavController) {
                         }
                     }
                 }
+
+                // Calorias
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),

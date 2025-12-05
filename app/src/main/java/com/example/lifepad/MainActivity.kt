@@ -40,6 +40,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.lifepad.ui.theme.LifePadTheme
+
+import com.google.firebase.auth.FirebaseAuth
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+
+
 //tela de login - principal
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +73,9 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-
+                    composable("hidratacao") {
+                        HidratacaoScreen(navController)
+                    }
                     composable("home") {
                         HomeScreen(navController = navController)
                     }
@@ -271,9 +279,32 @@ fun LoginScreen(
         )
 
         Spacer(Modifier.height(8.dp))
+        val auth = FirebaseAuth.getInstance()
+        val context = LocalContext.current
 
         Button(
-            onClick = { onLoginClicked() },
+            onClick = {
+                if (email.isBlank() || senha.isBlank()) {
+                    Toast.makeText(context, "Preencha email e senha", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
+                auth.signInWithEmailAndPassword(email.trim(), senha.trim())
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            // Login OK
+                            Toast.makeText(context, "Bem vindo!", Toast.LENGTH_SHORT).show()
+                            onLoginClicked()
+                        } else {
+                            // Mensagem genérica para segurança
+                            Toast.makeText(
+                                context,
+                                "Email ou senha inválidos.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+            },
             shape = RoundedCornerShape(32.dp),
             colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
             modifier = Modifier
@@ -284,6 +315,7 @@ fun LoginScreen(
             Spacer(Modifier.width(8.dp))
             Text("Login", color = Color.White)
         }
+
 
         Spacer(Modifier.height(32.dp))
 
