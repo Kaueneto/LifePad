@@ -355,7 +355,6 @@ fun HomeScreen(navController: NavController) {
                 fontSize = 20.sp
             )
 
-            //scrool pra mostrar os treinos
             Card(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)

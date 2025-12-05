@@ -1,5 +1,6 @@
 package com.example.lifepad
 
+import HidratacaoScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,5 +16,7 @@ fun MyAppRoot() {
     ) {
         composable("home") { HomeScreen(navController) }
         composable("hidratacao") { HidratacaoScreen(navController) }
+
     }
 }
+
