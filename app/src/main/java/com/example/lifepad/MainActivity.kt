@@ -1,14 +1,14 @@
 package com.example.lifepad
 
+//import BreakfastScreen
+import HidratacaoScreen
 import RegisterScreen
 import SplashScreen
-import android.graphics.Color.alpha
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.Animatable
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,10 +28,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
@@ -40,14 +41,36 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.lifepad.ui.theme.LifePadTheme
-
 import com.google.firebase.auth.FirebaseAuth
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.NavController
 
 
-//tela de login - principal
+// 🔥 AUTH OBSERVER - PROTEGE TODAS AS TELAS
+@Composable
+fun AuthObserver(navController: NavController) {
+    val auth = FirebaseAuth.getInstance()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        auth.addAuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user == null) {
+                println("❌ No user - redirect login")
+                navController.navigate("login") {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    launchSingleTop = true
+                }
+            } else {
+                println("✅ Auth OK: ${user.uid}")
+            }
+        }
+    }
+}
+
 class MainActivity : ComponentActivity() {
+    @SuppressLint("ComposableDestinationInComposeScope")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -82,8 +105,17 @@ class MainActivity : ComponentActivity() {
                     composable("foodMain") {
                         MealScheduleScreen(navController = navController)
                     }
+                    composable("waterMonitor") {
+                        HidratacaoScreen(navController)
+                    }
                     composable("breakfast") {
                         BreakfastScreen(navController = navController)
+                    }
+                    composable("sleepTracker"){
+                        SleepTrackerScreen(navController)
+                    }
+                    composable("sleepMonitor") {
+                        SleepMonitorScreen(navController)
                     }
                     composable(
                         route = "mealDetail/{mealName}",
@@ -92,8 +124,6 @@ class MainActivity : ComponentActivity() {
                         })
                     ) { backStack ->
                         val mealName = backStack.arguments?.getString("mealName") ?: ""
-
-
                         MealDetailScreen(
                             navController = navController,
                             mealImage = R.drawable.img_apple_pie,
@@ -123,11 +153,10 @@ class MainActivity : ComponentActivity() {
                     composable("register") {
                         RegisterScreen(
                             onBackToLogin = {
-                                navController.popBackStack() // volta para a tela anterior (login)
+                                navController.popBackStack()
                             }
                         )
                     }
-
                 }
             }
         }
@@ -201,7 +230,7 @@ fun LoginScreen(
                         .weight(1f)
                         .clickable { isAluno = true }
                         .padding(horizontal = 16.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    textAlign = TextAlign.Center
                 )
                 Text(
                     "Profissional",
@@ -210,7 +239,7 @@ fun LoginScreen(
                         .weight(1f)
                         .clickable { isAluno = false }
                         .padding(horizontal = 16.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    textAlign = TextAlign.Center
                 )
             }
         }
@@ -231,9 +260,7 @@ fun LoginScreen(
                 unfocusedBorderColor = borderFieldColor,
                 cursorColor = selectedColor
             ),
-            modifier = Modifier
-                .fillMaxWidth()
-             //   .height(56.dp)
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(Modifier.height(12.dp))
@@ -262,9 +289,7 @@ fun LoginScreen(
                 unfocusedBorderColor = borderFieldColor,
                 cursorColor = selectedColor
             ),
-            modifier = Modifier
-                .fillMaxWidth()
-               // .height(56.dp)
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(Modifier.height(8.dp))
@@ -292,16 +317,10 @@ fun LoginScreen(
                 auth.signInWithEmailAndPassword(email.trim(), senha.trim())
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            // Login OK
                             Toast.makeText(context, "Bem vindo!", Toast.LENGTH_SHORT).show()
                             onLoginClicked()
                         } else {
-                            // Mensagem genérica para segurança
-                            Toast.makeText(
-                                context,
-                                "Email ou senha inválidos.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(context, "Email ou senha inválidos.", Toast.LENGTH_SHORT).show()
                         }
                     }
             },
@@ -315,7 +334,6 @@ fun LoginScreen(
             Spacer(Modifier.width(8.dp))
             Text("Login", color = Color.White)
         }
-
 
         Spacer(Modifier.height(32.dp))
 
@@ -374,7 +392,7 @@ fun LoginScreen(
                 color = cadastroColor,
                 modifier = Modifier.clickable { onRegisterClicked() }
             )
-}
+        }
     }
 }
 
@@ -391,7 +409,7 @@ fun LoginScreenPreview() {
     LifePadTheme {
         LoginScreen(
             onLoginClicked = {},
-            onRegisterClicked = {}  // <-- adiciona isso
+            onRegisterClicked = {}
         )
     }
 }

@@ -12,9 +12,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,22 +20,128 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
-data class FoodMain(val name: String, val time: String, val imageRes: Int)
-data class MealSection(val title: String, val info: String, val items: List<FoodMain>)
+// item salvo em users/{uid}/refeicoes/{data}/itens
+data class FoodMain(
+    val name: String = "",
+    val kcal: Double = 0.0,
+    val mealType: String = "breakfast"
+)
+
+data class MealSection(
+    val title: String,
+    val items: List<FoodMain> = emptyList()
+) {
+    val totalMeals: Int get() = items.size
+    val totalKcal: Double get() = items.sumOf { it.kcal }
+    val info: String get() = "$totalMeals refeições | ${totalKcal.toInt()} kcal"
+}
+
+// ---------- VIEWMODEL DA TELA 1 ----------
+
+class MealScheduleViewModel : ViewModel() {
+
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val uid: String = auth.currentUser?.uid ?: ""
+
+    var breakfast by mutableStateOf(MealSection("Café da manhã"))
+        private set
+    var lunch by mutableStateOf(MealSection("Almoço"))
+        private set
+    var snack by mutableStateOf(MealSection("Lanche"))
+        private set
+
+    init {
+        carregarRefeicoesDeHoje()
+    }
+
+    fun carregarRefeicoesDeHoje() {
+        if (uid.isBlank()) {
+            println("DEBUG_MEAL uid vazio")
+            return
+        }
+
+        val hojeId = java.text.SimpleDateFormat(
+            "yyyy-MM-dd",
+            java.util.Locale.getDefault()
+        ).format(java.util.Date())
+        println("DEBUG_MEAL hojeId = $hojeId")
+
+        firestore.collection("users")
+            .document(uid)
+            .collection("refeicoes")
+            .document(hojeId)
+            .collection("itens")
+            .get()
+            .addOnSuccessListener { snap ->
+                println("DEBUG_MEAL total itens: ${snap.size()}")
+
+                val cafe = mutableListOf<FoodMain>()
+                val almoco = mutableListOf<FoodMain>()
+                val lanche = mutableListOf<FoodMain>()
+
+                for (doc in snap.documents) {
+                    val name = doc.getString("description") ?: ""
+                    val kcal = doc.getDouble("kcal")
+                        ?: doc.getDouble("energy_kcal")
+                        ?: 0.0
+                    val mealType = doc.getString("mealType") ?: "breakfast"
+
+                    println(
+                        "DEBUG_MEAL doc=${doc.id} desc=$name kcalLida=$kcal mealType=$mealType"
+                    )
+
+                    val item = FoodMain(name = name, kcal = kcal, mealType = mealType)
+                    when (mealType) {
+                        "breakfast" -> cafe.add(item)
+                        "lunch" -> almoco.add(item)
+                        "snack" -> lanche.add(item)
+                    }
+                }
+
+                breakfast = MealSection(
+                    title = "Café da manhã",
+                    items = cafe
+                )
+                lunch = MealSection(
+                    title = "Almoço",
+                    items = almoco
+                )
+                snack = MealSection(
+                    title = "Lanche",
+                    items = lanche
+                )
+            }
+            .addOnFailureListener { e ->
+                println("DEBUG_MEAL erro: ${e.message}")
+            }
+    }
+}
+
+
+// ---------- COMPOSABLE ----------
 
 @Composable
-fun MealScheduleScreen(navController: NavController) {
-    val breakfastItems: List<FoodMain> = emptyList()
-    val lunchItems: List<FoodMain> = emptyList()
-    val snackItems: List<FoodMain> = emptyList()
+fun MealScheduleScreen(
+    navController: NavController,
+    viewModel: MealScheduleViewModel = viewModel()
+) {
+    // Recarrega sempre que a tela for (re)mostrada
+    LaunchedEffect(Unit) {
+        viewModel.carregarRefeicoesDeHoje()
+    }
 
-    val mealSections = listOf(
-        MealSection("Café da manhã", "0 refeições | 0 kcal", breakfastItems),
-        MealSection("Almoço", "0 refeições | 0 kcal", lunchItems),
-        MealSection("Lanche", "0 refeições | 0 kcal", snackItems)
-    )
+    val breakfast = viewModel.breakfast
+    val lunch = viewModel.lunch
+    val snack = viewModel.snack
+
+    val mealSections = listOf(breakfast, lunch, snack)
 
     Scaffold(
         containerColor = Color(0xFF2E2B45),
@@ -46,7 +150,11 @@ fun MealScheduleScreen(navController: NavController) {
                 onClick = { navController.navigate("breakfast") },
                 containerColor = Color(0xFF8620AC)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Adicionar Refeição", tint = Color.White)
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Adicionar Refeição",
+                    tint = Color.White
+                )
             }
         },
         bottomBar = { CustomBottomNavigation(navController = navController) }
@@ -68,6 +176,7 @@ fun MealScheduleScreen(navController: NavController) {
                         if (section.title == "Café da manhã") {
                             navController.navigate("breakfast")
                         }
+                        // aqui depois você trata almoço/lanche
                     }
                 )
             }
@@ -76,6 +185,7 @@ fun MealScheduleScreen(navController: NavController) {
         }
     }
 }
+
 
 @Composable
 fun MealHeader(navController: NavController) {
@@ -137,6 +247,18 @@ fun MealSectionCard(
                 Text(
                     section.info,
                     color = Color(0xFFBEBEBE),
+                    fontSize = 12.sp
+                )
+            }
+        }
+
+        // Lista dos alimentos dessa seção
+        if (section.items.isNotEmpty()) {
+            Spacer(Modifier.height(8.dp))
+            section.items.forEach { food ->
+                Text(
+                    text = "• ${food.name} (${food.kcal.toInt()} kcal)",
+                    color = Color.White,
                     fontSize = 12.sp
                 )
             }
